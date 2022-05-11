@@ -36,6 +36,7 @@ const Cart = (props) => {
         oredredItems:items
       })
     });
+    dispatch(CartAction.onSubmit());
     setIsSubmitting(false);
     setDidSubmit(true)
 
