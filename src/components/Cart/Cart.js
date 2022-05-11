@@ -1,5 +1,6 @@
-import React, { useContext,useState } from 'react';
-import CartContext from '../../assets/store/Cart-Context';
+import React, { useState } from 'react';
+import { useSelector,useDispatch } from 'react-redux';
+import { CartAction } from '../../assets/store/cart-slice';
 import Modal from '../UI/Modal';
 import classes from './Cart.module.css';
 import CartItem from './CartItem';
@@ -10,16 +11,20 @@ const Cart = (props) => {
   const [isOrdered,setIsOrdered]=useState(false);
   const [isSubmitting,setIsSubmitting]=useState(false);
   const [didSubmit,setDidSubmit]=useState(false);
-   const CartCtx=useContext(CartContext);
-   const totalAmount = `$${CartCtx.totalAmount.toFixed(2)}`;
-  const hasItems=CartCtx.items.length>0
+  const items=useSelector(state=>state.cart.items);
+  const tAmount=useSelector(state=>state.cart.totalAmount);
+  const dispatch=useDispatch();
+  //  const CartCtx=useContext(CartContext);
+   const totalAmount = `$${tAmount.toFixed(2)}`;
+  const hasItems=items.length>0
   
 
   const cartItemRemoveHandler=id=>{
-   CartCtx.removeItem(id)   
+   dispatch(CartAction.removeCart(id))   
   }
   const cartItemHandler=item=>{
-      CartCtx.addItem({...item,amount:1});
+
+    dispatch( CartAction.addToCart({...item,amount:1})) 
   };
 
   const submitOrderHandler=async(userData)=>{
@@ -28,7 +33,7 @@ const Cart = (props) => {
       method:'POST',
       body:JSON.stringify({
         user:userData,
-        oredredItems:CartCtx.items
+        oredredItems:items
       })
     });
     setIsSubmitting(false);
@@ -37,7 +42,7 @@ const Cart = (props) => {
   }
     const cartItems = (
     <ul className={classes['cart-items']}>
-      {CartCtx.items.map((item) => (
+      {items.map((item) => (
         <CartItem key={item.id} name={item.name} amount={item.amount} price={item.price} onRemove={cartItemRemoveHandler.bind(null,item.id)} onAdd={cartItemHandler.bind(null,item)}/>
       ))}
     </ul>
